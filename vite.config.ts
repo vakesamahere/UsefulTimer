@@ -24,4 +24,5 @@ export default defineConfig({
       'ztt.aimixtech.com'
     ],
   },
+  base: process.env.NODE_ENV === 'production' ? '/UsefulTimer/' : '/',
 })

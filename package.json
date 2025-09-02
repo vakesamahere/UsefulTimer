@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "run-p type-check \"build-only {@}\" --",
+    "build": "vite build",
     "preview": "vite preview",
     "build-only": "vite build",
     "type-check": "vue-tsc --build"
@@ -30,5 +30,9 @@
     "vite": "^5.4.8",
     "vite-plugin-vue-devtools": "^7.4.6",
     "vue-tsc": "^1.8.27"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vakesamahere/UsefulTimer.git"
   }
 }
