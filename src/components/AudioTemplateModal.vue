@@ -2,23 +2,31 @@
   <div class="modal-overlay" v-if="isVisible" @click.self="closeModal">
     <div class="modal-content">
       <div class="modal-header">
-        <h2>声音模板管理</h2>
-        <button class="close-btn" @click="closeModal">×</button>
+        <h2>Audio Templates</h2>
+        <button class="btn" @click="closeModal">
+          <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+          </svg>
+        </button>
       </div>
       
       <div class="modal-body">
         <div class="template-list">
           <div class="list-header">
-            <h3>现有模板</h3>
-            <button @click="addNewTemplate" class="add-btn">+ 添加模板</button>
+            <h3>Your Templates</h3>
+            <button @click="addNewTemplate" class="btn">
+              <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+              </svg>
+            </button>
           </div>
           
           <div class="template-items">
-            <div 
-              v-for="(template, index) in localTemplates" 
-              :key="index"
+            <div
+              v-for="(template, index) in localTemplates"
+              :key="template.uuid"
               class="template-item"
-              :class="{ active: selectedTemplate?.name === template.name }"
+              :class="{ active: selectedTemplate?.uuid === template.uuid }"
               @click="selectTemplate(template)"
             >
               <div class="template-info">
@@ -26,14 +34,20 @@
                 <div class="template-src">{{ template.src || '未设置音频文件' }}</div>
               </div>
               <div class="template-actions">
-                <button @click.stop="playTemplate(template)" class="play-btn" title="试听">
-                  🔊
+                <button v-tooltip @click.stop="playTemplate(template)" class="btn play-btn" title="试听">
+                  <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 1c-4.97 0-9 4.03-9 9v7c0 1.66 1.34 3 3 3h3v-8H5v-2c0-3.86 3.14-7 7-7s7 3.14 7 7v2h-4v8h3c1.66 0 3-1.34 3-3v-7c0-4.97-4.03-9-9-9z" />
+                  </svg>
                 </button>
-                <button @click.stop="editTemplate(template)" class="edit-btn" title="编辑">
-                  ✏️
+                <button v-tooltip @click.stop="editTemplate(template)" class="btn play-btn" title="编辑">
+                  <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.09-.77-1.74-1.07L14 2.1c-.09-.48-.5-.81-1-.81h-4c-.5 0-.91.33-1 .81L7.54 5.1c-.65.3-1.22.67-1.74 1.07l-2.49-1c-.22-.08-.49 0-.61.22l-2 3.46c-.12.22-.07.49.12.64l2.11 1.65c-.04.32-.07.64-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.09.77 1.74 1.07L9 21.9c.09.48.5.81 1 .81h4c.5 0 .91-.33 1-.81l.46-2.58c.65-.3 1.22-.67 1.74-1.07l2.49 1c.22.08.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z" />
+                  </svg>
                 </button>
-                <button @click.stop="deleteTemplate(index)" class="delete-btn" title="删除">
-                  🗑️
+                <button v-tooltip @click.stop="deleteTemplate(index)" class="btn play-btn" title="删除">
+                  <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
+                  </svg>
                 </button>
               </div>
             </div>
@@ -59,11 +73,19 @@
                   type="text" 
                   placeholder="音频文件路径或URL"
                 />
-                <button @click="selectAudioFile" class="file-select-btn">选择文件</button>
-                <button @click="inputAudioUrl" class="url-input-btn">输入URL</button>
+                <button v-tooltip @click="selectAudioFile" class="btn" title="从本地选择音频文件">
+                  <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M14,2H6C4.89,2 4,2.89 4,4V20C4,21.11 4.89,22 6,22H18C19.11,22 20,21.11 20,20V8L14,2Z" />
+                  </svg>
+                </button>
+                <button v-tooltip @click="inputAudioUrl" class="btn" title="从URL导入音频">
+                  <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 16.92c-3.5-.32-6.27-3.23-6.27-6.92 0-.96.22-1.89.62-2.73l4.65 8.16-.94 1.49zm2-.01l-.94-1.49 4.65-8.16c.4.84.62 1.77.62 2.73 0 3.69-2.77 6.6-6.27 6.92zM12 18V6c3.69 0 6.6 2.77 6.92 6.27-.32 3.5-3.23 6.27-6.92 6.27z" />
+                  </svg>
+                </button>
               </div>
             </div>
-            <div class="form-group">
+            <div v-if="presetSounds.length > 0" class="form-group">
               <label>预设音频:</label>
               <div class="preset-sounds">
                 <button 
@@ -77,16 +99,32 @@
               </div>
             </div>
             <div class="form-actions">
-              <button @click="testPlay" class="test-btn">试听</button>
-              <button @click="saveTemplate" class="save-template-btn">保存模板</button>
+              <button @click="testPlay" class="btn">
+                <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 1c-4.97 0-9 4.03-9 9v7c0 1.66 1.34 3 3 3h3v-8H5v-2c0-3.86 3.14-7 7-7s7 3.14 7 7v2h-4v8h3c1.66 0 3-1.34 3-3v-7c0-4.97-4.03-9-9-9z" />
+                </svg>
+              </button>
+              <button @click="saveTemplate" class="btn">
+                <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z" />
+                </svg>
+              </button>
             </div>
           </div>
         </div>
       </div>
 
       <div class="modal-footer">
-        <button @click="saveAllTemplates" class="save-btn">保存所有更改</button>
-        <button @click="closeModal" class="cancel-btn">取消</button>
+        <button @click="saveAllTemplates" class="btn">
+          <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z" />
+          </svg>
+        </button>
+        <button @click="closeModal" class="btn">
+          <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+          </svg>
+        </button>
       </div>
     </div>
   </div>
@@ -117,21 +155,21 @@ const localTemplates = ref<AudioObjTemplate[]>([]);
 const selectedTemplate = ref<AudioObjTemplate | null>(null);
 
 // 预设音频
-const presetSounds = [
-  { name: '默认提示音', src: '/sounds/default.mp3' },
-  { name: '铃声', src: '/sounds/bell.mp3' },
-  { name: '蜂鸣声', src: '/sounds/beep.mp3' },
-  { name: '叮咚声', src: '/sounds/ding.mp3' },
-  { name: '警报声', src: '/sounds/alarm.mp3' },
+const presetSounds: {name: string; src: string}[] = [
 ];
 
 watch(() => props.modelValue, (newVal) => {
   isVisible.value = newVal;
   if (newVal) {
-    // 深拷贝模板数组
-    localTemplates.value = props.templates.map(template => 
-      new AudioObjTemplate(template.name, template.src)
-    );
+    // 深拷贝模板数组，保持原有的 UUID
+    localTemplates.value = props.templates.map(template => {
+      const newTemplate = new AudioObjTemplate(template.name, template.src);
+      newTemplate.uuid = template.uuid; // 保持原有的 UUID
+      newTemplate.audioId = template.audioId; // 保持原有的 audioId
+      newTemplate.createdAt = template.createdAt; // 保持原有的创建时间
+      newTemplate.updatedAt = template.updatedAt; // 保持原有的更新时间
+      return newTemplate;
+    });
     selectedTemplate.value = null;
   }
 });
@@ -156,13 +194,23 @@ const editTemplate = (template: AudioObjTemplate) => {
 };
 
 const deleteTemplate = (index: number) => {
-  if (confirm('确定要删除这个模板吗？')) {
-    const deletedTemplate = localTemplates.value[index];
-    localTemplates.value.splice(index, 1);
-    if (selectedTemplate.value === deletedTemplate) {
-      selectedTemplate.value = null;
-    }
+  // if (confirm('确定要删除这个模板吗？')) {
+  const deletedTemplate = localTemplates.value[index];
+
+  // 从本地数组中删除
+  localTemplates.value.splice(index, 1);
+
+  // 从数据管理器中删除
+  if (deletedTemplate.uuid) {
+    dataManager.deleteAudioTemplate(deletedTemplate.uuid);
+    console.log(`已从数据管理器删除音频模板: ${deletedTemplate.name} (${deletedTemplate.uuid})`);
   }
+
+  // 清除选中状态
+  if (selectedTemplate.value === deletedTemplate) {
+    selectedTemplate.value = null;
+  }
+  // }
 };
 
 const playTemplate = async (template: AudioObjTemplate) => {
@@ -361,25 +409,6 @@ const saveAllTemplates = () => {
   color: #ffffff;
 }
 
-.close-btn {
-  background: none;
-  border: none;
-  color: #ffffff;
-  font-size: 24px;
-  cursor: pointer;
-  padding: 0;
-  width: 30px;
-  height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.close-btn:hover {
-  background-color: #ff4444;
-  border-radius: 50%;
-}
-
 .modal-body {
   flex: 1;
   overflow-y: auto;
@@ -405,15 +434,6 @@ const saveAllTemplates = () => {
 .list-header h3 {
   margin: 0;
   color: #ffffff;
-}
-
-.add-btn {
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
-  cursor: pointer;
 }
 
 .template-items {
@@ -471,15 +491,7 @@ const saveAllTemplates = () => {
 }
 
 .play-btn:hover {
-  background-color: #4CAF50;
-}
-
-.edit-btn:hover {
-  background-color: #2196F3;
-}
-
-.delete-btn:hover {
-  background-color: #f44336;
+  background-color: var(--play-btn-hover);
 }
 
 .template-editor {
@@ -522,16 +534,6 @@ const saveAllTemplates = () => {
   flex: 1;
 }
 
-.file-select-btn {
-  background-color: #2196F3;
-  color: white;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 4px;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
 .preset-sounds {
   display: flex;
   flex-wrap: wrap;
@@ -558,47 +560,11 @@ const saveAllTemplates = () => {
   margin-top: 20px;
 }
 
-.test-btn {
-  background-color: #FF9800;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.save-template-btn {
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
 .modal-footer {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
   padding: 20px;
   border-top: 1px solid #444;
-}
-
-.save-btn {
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.cancel-btn {
-  background-color: #666;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 4px;
-  cursor: pointer;
 }
 </style>

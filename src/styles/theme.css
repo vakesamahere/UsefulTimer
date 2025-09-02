@@ -20,6 +20,7 @@
   /* 按钮颜色 */
   --btn-primary-bg: rgba(0, 0, 0, 0.1);
   --btn-primary-hover: rgba(0, 0, 0, 0.25);
+  --btn-primary-active: rgba(255, 255, 255, 0.5);
   --btn-secondary-bg: #3c3c3c;
   --btn-secondary-hover: #464647;
   --btn-danger-bg: #f14c4c;
@@ -29,6 +30,7 @@
   --btn-warning-bg: #ffcc02;
   --btn-warning-hover: #f9c74f;
   --btn-svg-color: #aaa;
+  --btn-svg-color-active: #3f3f3f;
   
   /* 播放控制按钮 */
   --play-btn-bg: rgba(0, 0, 0, 0.1);

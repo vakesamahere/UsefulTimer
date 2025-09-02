@@ -1,6 +1,16 @@
 import { createApp } from 'vue'
 import App from './App.vue'
-import './styles/_base.css'
 import './styles/theme.css'
+import './styles/_base.css'
+import helperTooltip from './utils/helperTooltip'
 
-createApp(App).mount('#app')
+window.variables = {
+  helperTaskId: 0
+}
+window.config = {
+  helperTimeout: 3000
+}
+
+const app = createApp(App)
+app.directive('tooltip', helperTooltip)
+app.mount('#app')

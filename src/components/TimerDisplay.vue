@@ -1,13 +1,24 @@
 <template>
   <div :key="props.timer.rendering.forceUpdateKey.value">
-    <div class="timer">
-      <div class="timer-title" @click="showRenameModal()" title="Click to rename">
-        <span class="timer-title-text">{{ timer.name }}</span>
+    <div class="timer" @mouseleave="()=>{showRenameModalFlag = false}">
+      <div class="timer-header">
+        <div v-tooltip class="timer-title" @click="showRenameModal()" title="Click to rename">
+          <span v-if="!showRenameModalFlag" class="timer-title-text">{{ timer.name }}</span>
+          <input v-else v-focus type="text" v-model="timer.name" @blur="rename(timer.name)" @keyup.enter="rename(timer.name)" class="timer-title-text timer-title-input" />
+        </div>
+        <div class="delete-button-box">
+          <button class="btn delete-button" @click="emits('delete', timer.id)">
+            <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
+            </svg>
+          </button>
+        </div>
       </div>
       <div class="timer-meta-quick-setting">
         <button
+          v-tooltip
           title="播放/暂停"
-          class="play-btn modern-btn"
+          class="btn modern-btn"
           :class="{ playing: playState.isPlaying }"
           @click="togglePlay"
         >
@@ -19,8 +30,9 @@
           </svg>
         </button>
         <button
+          v-tooltip
           title="停止播放"
-          class="stop-btn modern-btn"
+          class="btn modern-btn"
           @click="stopPlay"
         >
           <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
@@ -28,8 +40,9 @@
           </svg>
         </button>
         <button
+          v-tooltip
           title="打开详细设置"
-          class="setting-button modern-btn"
+          class="btn modern-btn setting-button"
           @click="openSetting()"
         >
           <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
@@ -38,8 +51,9 @@
         </button>
         <div class="spacer"></div>
         <button
+          v-tooltip
           :title="`点击切换播放模式，当前: ${timer.getModeDisplayName()}`"
-          class="toggle-play-button modern-btn"
+          class="btn modern-btn"
           @click="timer.toggleMode()"
         >
           <svg v-if="timer.mode === TimerMode.Infinite" class="icon" viewBox="0 0 100 100">
@@ -108,11 +122,11 @@
     <Teleport
       :to="`body`"
     >
-      <RenameModal
+      <!-- <RenameModal
         v-model="showRenameModalFlag"
         :initial-name="props.timer.name"
         @confirm="rename"
-      />
+      /> -->
       <TimerSettingModal
         v-model="showSettingModalFlag"
         :timer="props.timer"
@@ -129,12 +143,19 @@ import RenameModal from '@/components/RenameModal.vue';
 import TimerSettingModal from '@/components/TimerSettingModal.vue';
 import { dataManager } from '@/utils/dataManager';
 
+const vFocus = {
+  mounted: (el:any) => {
+    el.focus();
+  }
+};
+
 const props = defineProps({
   timer: {
     type: Timer,
     required: true
   }
 })
+const emits = defineEmits(['delete'])
 defineExpose({
   forceUpdate
 })
@@ -549,15 +570,31 @@ watch(() => props.timer.reportTime, () => {
   transition: var(--transition-normal);
 }
 
+.timer:hover .delete-button-box .delete-button {
+  opacity: 1;
+}
+
 .timer:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px var(--timer-card-hover-shadow);
 }
 
+.timer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
 .timer-title {
   cursor: pointer;
   width: 100%;
-  margin-bottom: 15px;
+  padding-left: 0px;
+  font-size: 14px;
+  flex: 100;
+  line-height: 34px;
+  border-radius: 10px;
+  transition: all 0.5s ease;
 }
 
 .timer-title-text {
@@ -567,8 +604,45 @@ watch(() => props.timer.reportTime, () => {
   transition: var(--transition-fast);
 }
 
+.timer-title:hover {
+  padding-left: 10px;
+  background-color: rgba(0, 0, 0, 0.13)
+}
+
+.timer-title-input {
+  background-color: transparent;
+  outline: none;
+  border: none;
+
+}
+
 .timer-title:hover .timer-title-text {
   color: var(--text-accent);
+}
+
+.modern-btn {
+  min-width: 40px;
+}
+
+.setting-button {
+  padding: 7px;
+}
+
+.delete-button-box {
+  min-width: 40px;
+  flex: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.delete-button {
+  opacity: 0;
+}
+
+.delete-button:hover {
+  background: var(--btn-danger-bg);
+  color: var(--bg-primary);
 }
 
 .timer-meta-quick-setting {
@@ -581,85 +655,6 @@ watch(() => props.timer.reportTime, () => {
 
 .timer-meta-quick-setting > .spacer {
   flex: 100;
-}
-
-.modern-btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 2px;
-  border: 1px solid var(--border-primary);
-  border-radius: 8px;
-  background-color: var(--btn-secondary-bg);
-  color: var(--text-primary);
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: var(--transition-fast);
-  box-shadow: 0 2px 4px var(--shadow-light);
-  min-width: 40px;
-  justify-content: center;
-}
-
-.modern-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px var(--shadow-medium);
-  background-color: var(--btn-secondary-hover);
-}
-
-.modern-btn:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 4px var(--shadow-light);
-}
-
-.toggle-play-button {
-  background-color: var(--play-btn-bg);
-  color: var(--btn-svg-color);
-  border-color: var(--play-btn-bg);
-}
-
-.setting-button {
-  padding: 5px;
-  background-color: var(--btn-primary-bg);
-  color: var(--btn-svg-color);
-  border-color: var(--btn-primary-bg);
-}
-
-.setting-button:hover {
-  background-color: var(--btn-primary-hover);
-  border-color: var(--btn-primary-hover);
-}
-
-.play-btn {
-  background-color: var(--play-btn-bg);
-  color: var(--btn-svg-color);
-  border-color: var(--play-btn-bg);
-}
-
-.play-btn:hover {
-  background-color: var(--play-btn-hover);
-  border-color: var(--play-btn-hover);
-}
-
-.play-btn.playing {
-  background-color: var(--pause-btn-bg);
-  border-color: var(--pause-btn-bg);
-}
-
-.play-btn.playing:hover {
-  background-color: var(--pause-btn-hover);
-  border-color: var(--pause-btn-hover);
-}
-
-.stop-btn {
-  background-color: var(--stop-btn-bg);
-  color: var(--btn-svg-color);
-  border-color: var(--stop-btn-bg);
-}
-
-.stop-btn:hover {
-  background-color: var(--stop-btn-hover);
-  border-color: var(--stop-btn-hover);
 }
 
 /* Canvas 时间轴样式 */
@@ -675,14 +670,6 @@ watch(() => props.timer.reportTime, () => {
 
 .points-timeline-canvas:hover {
   border-color: var(--text-accent);
-}
-
-.btn-icon {
-  font-size: 16px;
-}
-
-.btn-text {
-  font-weight: 500;
 }
 
 .timer-points-manager {

@@ -6,13 +6,15 @@
         <p>专业的时间管理工具</p>
       </div>
       <div class="header-actions">
-        <button @click="showAudioTemplateModal" class="header-btn template-btn">
-          <span class="btn-icon">🎵</span>
-          <span>声音模板</span>
+        <button v-tooltip @click="showAudioTemplateModal" class="btn header-btn" title="Manage Audio Templates">
+          <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 1c-4.97 0-9 4.03-9 9v7c0 1.66 1.34 3 3 3h3v-8H5v-2c0-3.86 3.14-7 7-7s7 3.14 7 7v2h-4v8h3c1.66 0 3-1.34 3-3v-7c0-4.97-4.03-9-9-9z" />
+          </svg>
         </button>
-        <button @click="addNewTimer" class="header-btn add-timer-btn">
-          <span class="btn-icon">➕</span>
-          <span>添加 Timer</span>
+        <button v-tooltip @click="addNewTimer" class="btn header-btn" title="New Timer">
+          <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+          </svg>
         </button>
       </div>
     </div>
@@ -66,11 +68,27 @@ const showAudioTemplateModal = () => {
 };
 
 const saveAudioTemplates = (templates: AudioObjTemplate[]) => {
-  audioTemplates.value = templates;
-  // 保存所有音频模板到数据管理器
+  // 获取当前数据管理器中的所有模板
+  const currentTemplates = dataManager.getAudioTemplateList();
+  const currentTemplateUuids = new Set(currentTemplates.map(t => t.uuid));
+  const newTemplateUuids = new Set(templates.map(t => t.uuid));
+
+  // 删除不在新列表中的模板
+  currentTemplateUuids.forEach(uuid => {
+    if (!newTemplateUuids.has(uuid)) {
+      dataManager.deleteAudioTemplate(uuid);
+      console.log(`已删除不在新列表中的音频模板: ${uuid}`);
+    }
+  });
+
+  // 保存所有新的音频模板到数据管理器
   templates.forEach(template => {
     dataManager.saveAudioTemplate(template);
   });
+
+  // 更新本地状态
+  audioTemplates.value = templates;
+
   console.log(`已保存 ${templates.length} 个音频模板`);
 };
 
@@ -213,48 +231,14 @@ const loadAudioTemplates = async () => {
 }
 
 .header-btn {
-  display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 12px 20px;
-  border: 1px solid var(--border-primary);
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
+  min-width: 40px;
+  padding: 5px 5px;
   transition: var(--transition-normal);
-  background-color: var(--btn-secondary-bg);
-  color: var(--text-primary);
 }
 
-.template-btn {
-  background-color: var(--btn-warning-bg);
-  color: var(--bg-primary);
-  border-color: var(--btn-warning-bg);
-}
-
-.template-btn:hover {
-  background-color: var(--btn-warning-hover);
-  border-color: var(--btn-warning-hover);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px var(--shadow-medium);
-}
-
-.add-timer-btn {
-  background-color: var(--btn-success-bg);
-  color: var(--bg-primary);
-  border-color: var(--btn-success-bg);
-}
-
-.add-timer-btn:hover {
-  background-color: var(--btn-success-hover);
-  border-color: var(--btn-success-hover);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px var(--shadow-medium);
-}
-
-.btn-icon {
-  font-size: 16px;
+.header-btn:hover {
+  scale: 1.13;
 }
 
 .main-content {

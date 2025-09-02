@@ -4,6 +4,7 @@ import TimerManager from '@/views/TimerManager.vue';
 
 <template>
   <TimerManager/>
+  <span id="helper"></span>
 </template>
 
 <style scoped></style>

@@ -1,5 +1,51 @@
-:root {
-  --timer-diaplay-bg-color: rgba(255, 145, 145, 0.8);
-  --timer-diaplay-font-color: #000000;
-  --timer-diaplay-border-color: rgba(255, 145, 145, 1);
+.btn {
+  min-width: 34px;
+  /* border-radius: 10px; */
+  padding: 5px;
+  font-size: 14px;
+  cursor: pointer;
+  background-color: var(--btn-primary-bg);
+  color: var(--btn-svg-color);
+  border-color: var(--btn-primary-bg);
+  transition: var(--transition-normal);
+}
+
+.btn:hover {
+  background-color: var(--btn-primary-hover);
+  border-color: var(--btn-primary-hover);
+}
+
+.btn:active {
+  background-color: var(--btn-primary-active);
+  color: var(--btn-svg-color-active)
+}
+
+#helper {
+  position: fixed;
+  left: 50%;
+  bottom:0;
+  transform: translate(-50%, -13vh);
+  width: 80vh;
+  height: 100px;
+  background-color: var(--bg-secondary);
+  box-shadow: 0 4px 12px var(--shadow-light);
+  border-radius: 16px;
+  padding: 20px;
+  color: var(--text-primary);
+  font-size: 22px;
+  line-height: 1.5;
+
+  transition: var(--transition-normal);
+}
+
+#helper:empty {
+  opacity: 0;
+}
+
+#helper:not(:empty) {
+  opacity: 1;
+}
+
+.vue-devtools__anchor {
+  display: none
 }
