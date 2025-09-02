@@ -1,0 +1,193 @@
+/* VSCode 深灰色系主题色配置 */
+:root {
+  /* 主要背景色 */
+  --bg-primary: #1e1e1e;
+  --bg-secondary: #252526;
+  --bg-tertiary: #2d2d30;
+  --bg-quaternary: #3c3c3c;
+  
+  /* 边框颜色 */
+  --border-primary: #3c3c3c;
+  --border-secondary: #464647;
+  --border-hover: #007acc;
+  
+  /* 文字颜色 */
+  --text-primary: #cccccc;
+  --text-secondary: #969696;
+  --text-muted: #6a6a6a;
+  --text-accent: #007acc;
+  
+  /* 按钮颜色 */
+  --btn-primary-bg: rgba(0, 0, 0, 0.1);
+  --btn-primary-hover: rgba(0, 0, 0, 0.25);
+  --btn-secondary-bg: #3c3c3c;
+  --btn-secondary-hover: #464647;
+  --btn-danger-bg: #f14c4c;
+  --btn-danger-hover: #e73c3c;
+  --btn-success-bg: #89d185;
+  --btn-success-hover: #73c991;
+  --btn-warning-bg: #ffcc02;
+  --btn-warning-hover: #f9c74f;
+  --btn-svg-color: #aaa;
+  
+  /* 播放控制按钮 */
+  --play-btn-bg: rgba(0, 0, 0, 0.1);
+  --play-btn-hover: rgba(0, 0, 0, 0.25);
+  --pause-btn-bg: rgba(0, 0, 0, 0.1);
+  --pause-btn-hover: rgba(0, 0, 0, 0.25);
+  --stop-btn-bg: rgba(0, 0, 0, 0.1);
+  --stop-btn-hover: rgba(0, 0, 0, 0.25);
+  
+  /* Timer 卡片颜色 */
+  --timer-card-bg: linear-gradient(135deg, #2d2d30, #3c3c3c);
+  --timer-card-border: #464647;
+  --timer-card-hover-shadow: rgba(0, 122, 204, 0.3);
+  
+  /* Modal 背景 */
+  --modal-bg: #252526;
+  --modal-overlay: rgba(0, 0, 0, 0.6);
+  --modal-border: #464647;
+  
+  /* 输入框颜色 */
+  --input-bg: #3c3c3c;
+  --input-border: #464647;
+  --input-focus-border: #007acc;
+  --input-text: #cccccc;
+  
+  /* 时间轴颜色 */
+  --timeline-bg: #2d2d30;
+  --timeline-ruler-bg: #3c3c3c;
+  --timeline-track-bg: #252526;
+  --timeline-track-border: #464647;
+  --timeline-playhead: #007acc;
+  --timeline-audio-block: #89d185;
+  --timeline-audio-block-selected: #73c991;
+  
+  /* 状态颜色 */
+  --success-color: #89d185;
+  --warning-color: #ffcc02;
+  --error-color: #f14c4c;
+  --info-color: #007acc;
+  
+  /* 阴影 */
+  --shadow-light: rgba(0, 0, 0, 0.2);
+  --shadow-medium: rgba(0, 0, 0, 0.4);
+  --shadow-heavy: rgba(0, 0, 0, 0.6);
+  
+  /* 过渡动画 */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.3s ease;
+  --transition-slow: 0.5s ease;
+}
+
+/* 全局样式重置 */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+/* 滚动条样式 */
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--bg-quaternary);
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--border-secondary);
+}
+
+/* 通用按钮样式 */
+.btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: var(--transition-fast);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-primary {
+  background-color: var(--btn-primary-bg);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: var(--btn-primary-hover);
+}
+
+.btn-secondary {
+  background-color: var(--btn-secondary-bg);
+  color: var(--text-primary);
+  border: 1px solid var(--border-primary);
+}
+
+.btn-secondary:hover {
+  background-color: var(--btn-secondary-hover);
+  border-color: var(--border-hover);
+}
+
+.btn-danger {
+  background-color: var(--btn-danger-bg);
+  color: white;
+}
+
+.btn-danger:hover {
+  background-color: var(--btn-danger-hover);
+}
+
+.btn-success {
+  background-color: var(--btn-success-bg);
+  color: var(--bg-primary);
+}
+
+.btn-success:hover {
+  background-color: var(--btn-success-hover);
+}
+
+/* 输入框样式 */
+.input {
+  background-color: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: 4px;
+  color: var(--input-text);
+  padding: 8px 12px;
+  font-size: 14px;
+  transition: var(--transition-fast);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--input-focus-border);
+  box-shadow: 0 0 0 2px rgba(0, 122, 204, 0.2);
+}
+
+/* Modal 样式 */
+.modal-overlay {
+  background-color: var(--modal-overlay);
+}
+
+.modal-content {
+  background-color: var(--modal-bg);
+  border: 1px solid var(--modal-border);
+  border-radius: 8px;
+  color: var(--text-primary);
+}

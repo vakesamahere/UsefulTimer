@@ -38,6 +38,16 @@ export class Timer {
    */
   name: string = '';
 
+  /**
+   * @description 创建时间
+   */
+  createdAt: number = 0;
+
+  /**
+   * @description 修改时间
+   */
+  updatedAt: number = 0;
+
   /** @description 直接初始化渲染相关变量 */
   rendering: {
     forceUpdateKey: Ref<number>;
@@ -48,6 +58,8 @@ export class Timer {
     this.name = name || this.id;
     this.cycleTime = cycleTime || 3;
     this.reportTime = [];
+    this.createdAt = Date.now();
+    this.updatedAt = Date.now();
     this.rendering = this.initializeRerderingConfig();
   }
 
@@ -59,6 +71,13 @@ export class Timer {
 
   forceUpdate() {
     this.rendering.forceUpdateKey.value++;
+  }
+
+  /**
+   * 更新修改时间
+   */
+  touch(): void {
+    this.updatedAt = Date.now();
   }
 
   addReportTime(reportTime: TimerPoint) {
@@ -138,12 +157,14 @@ export enum TimerMode {
 export class TimerPoint {
   id: string = '';
   name: string = '';
+  time: number = 0; // 在周期中的时间位置（秒）
   audioObj: AudioObj = emptyAudioObj();
   tags: string[];
   path: string[];
-  constructor(name?: string, audioObj?: AudioObj, tags?: string[], path?: string[]) {
+  constructor(name?: string, time?: number, audioObj?: AudioObj, tags?: string[], path?: string[]) {
     this.id = uuidv4();
     this.setName(name || this.id);
+    this.time = time || 0;
     this.audioObj = audioObj || emptyAudioObj();
     this.tags = tags || [];
     this.path = path || [];
@@ -211,42 +232,169 @@ export class TimerPoint {
   }
 
   copy() {
-    return new TimerPoint(this.name, this.audioObj, this.tags);
+    return new TimerPoint(this.name, this.time, this.audioObj, this.tags, this.path);
   }
 }
 
 /**
- * @todo 实现一个声音对象，仅处理播放暂停停止
- * @description 来自一个声音模板
+ * 音频对象 - 实现播放控制
+ * @description 来自一个声音模板，使用新的音频存储系统
  */
 export class AudioObj {
   currentTime: number = 0;
   template: AudioObjTemplate = emptyAudioObjTemplate();
+  private audioElement: HTMLAudioElement | null = null;
+  private isLoading: boolean = false;
+
   constructor(template?: AudioObjTemplate) {
     this.template = template || emptyAudioObjTemplate();
   }
-  /** @TODO */
-  play() {
+
+  /**
+   * 播放音频
+   */
+  async play(): Promise<void> {
+    try {
+      if (!this.template.audioId) {
+        console.warn('音频模板没有关联的音频ID');
+        return;
+      }
+
+      // 如果音频元素不存在或正在加载，先加载音频
+      if (!this.audioElement && !this.isLoading) {
+        await this.loadAudio();
+      }
+
+      if (this.audioElement) {
+        this.audioElement.currentTime = this.currentTime;
+        await this.audioElement.play();
+      }
+    } catch (error) {
+      console.error('播放音频失败:', error);
+    }
   }
-  /** @TODO */
-  pause() {
+
+  /**
+   * 暂停音频
+   */
+  pause(): void {
+    if (this.audioElement) {
+      this.audioElement.pause();
+      this.currentTime = this.audioElement.currentTime;
+    }
   }
-  /** @TODO */
-  stop() {
+
+  /**
+   * 停止音频
+   */
+  stop(): void {
+    if (this.audioElement) {
+      this.audioElement.pause();
+      this.audioElement.currentTime = 0;
+      this.currentTime = 0;
+    }
+  }
+
+  /**
+   * 加载音频
+   */
+  private async loadAudio(): Promise<void> {
+    if (this.isLoading) return;
+
+    this.isLoading = true;
+    try {
+      const { audioRetriever } = await import('./audioStorage');
+      this.audioElement = await audioRetriever.getPlayableAudio(this.template.audioId);
+
+      if (this.audioElement) {
+        // 设置音频事件监听器
+        this.audioElement.addEventListener('timeupdate', () => {
+          this.currentTime = this.audioElement!.currentTime;
+        });
+
+        this.audioElement.addEventListener('ended', () => {
+          this.currentTime = 0;
+        });
+      }
+    } catch (error) {
+      console.error('加载音频失败:', error);
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  /**
+   * 预加载音频
+   */
+  async preload(): Promise<void> {
+    if (!this.audioElement && !this.isLoading) {
+      await this.loadAudio();
+    }
+  }
+
+  /**
+   * 获取音频时长
+   */
+  getDuration(): number {
+    return this.audioElement?.duration || 0;
+  }
+
+  /**
+   * 设置音量
+   */
+  setVolume(volume: number): void {
+    if (this.audioElement) {
+      this.audioElement.volume = Math.max(0, Math.min(1, volume));
+    }
+  }
+
+  /**
+   * 获取音量
+   */
+  getVolume(): number {
+    return this.audioElement?.volume || 1;
   }
 }
 export const emptyAudioObj = () => new AudioObj();
 
+// 音频数据接口
+export interface AudioData {
+  audioBlob: Blob;           // 音频信息(可以直接读取播放)
+  downloadUrl: string;       // 下载地址（文件路径或url）
+  createdAt: number;         // 创建的时间戳
+}
+
 /**
- * @todo 实现一个声音模板
- * 有对应的音频信息，可以编辑音量
+ * 音频模板类 - 重新设计为使用UUID引用
  */
 export class AudioObjTemplate {
-  name: string = '';
-  src: string = '';
-  constructor(name?: string, src?: string) {
+  uuid: string;           // 模板自己的UUID
+  name: string;
+  audioId: string;        // 指向 AudioDownload 的 UUID
+  createdAt: number;      // 创建时间
+  updatedAt: number;      // 修改时间
+
+  constructor(name?: string, audioId?: string, uuid?: string) {
+    this.uuid = uuid || uuidv4();
     this.name = name || '';
-    this.src = src || '';
+    this.audioId = audioId || '';
+    this.createdAt = Date.now();
+    this.updatedAt = Date.now();
+  }
+
+  // 更新模板时调用
+  touch(): void {
+    this.updatedAt = Date.now();
+  }
+
+  // 为了向后兼容，保留 src 属性（映射到 audioId）
+  get src(): string {
+    return this.audioId;
+  }
+
+  set src(value: string) {
+    this.audioId = value;
+    this.touch();
   }
 }
 export const emptyAudioObjTemplate = () => new AudioObjTemplate();
